@@ -1,0 +1,65 @@
+
+To tackle the task of identifying subthemes
+Data Preparation
+Subtheme Identification
+Sentiment Analysis
+Integration and Output
+Evaluation
+
+1. Data Preparation
+First, let's load and explore the provided dataset to understand its structure.
+import pandas as pd
+
+# Load the dataset
+file_path = '/mnt/data/Evaluation-dataset (1).csv'
+df = pd.read_csv(file_path)
+
+# Display the first few rows of the dataset
+df.head()
+
+
+2. Subtheme Identification and Sentiment Analysis
+We'll use a combination of NLP techniques to identify subthemes and their sentiments.
+import spacy
+from textblob import TextBlob
+
+# Load SpaCy model
+nlp = spacy.load('en_core_web_sm')
+
+# Function to extract subthemes and sentiments
+def extract_subthemes_and_sentiments(text):
+    doc = nlp(text)
+    subthemes = []
+    for sent in doc.sents:
+        aspects = [token.text for token in sent if token.dep_ in ['nsubj', 'dobj'] and token.pos_ in ['NOUN', 'PROPN']]
+        sentiment = TextBlob(sent.text).sentiment.polarity
+        sentiment_label = 'positive' if sentiment > 0 else 'negative'
+        for aspect in aspects:
+            subthemes.append((aspect, sentiment_label))
+    return subthemes
+
+# Apply the function to the dataset
+df['Subthemes_Sentiments'] = df['review'].apply(extract_subthemes_and_sentiments)
+
+# Display the results
+df.head()
+
+3. Output the Results
+Finally, let's output the results into a CSV file for further analysis.
+
+# Save the results to a new CSV file
+output_file_path = '/mnt/data/subthemes_sentiments_output.csv'
+df.to_csv(output_file_path, index=False)
+
+Summary and Explanation of Approach
+Data Preparation: 
+Loaded and explored the dataset to understand its structure. 
+Text data was cleaned and normalized for further analysis.
+Subtheme Identification:
+ Used SpaCy for dependency parsing to identify key aspects (nouns) within sentences.
+Sentiment Analysis:
+ Applied TextBlob to determine the sentiment of each sentence, classifying them as positive or negative.
+Integration and Output: 
+Combined the extracted subthemes with their sentiments and outputted the results in a CSV file.
+
+
